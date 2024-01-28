@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/style.css}"/>
+    <title>Reddit App</title>
+</head>
+
+<body>
+
+<div class="information-link">
+    <a th:href="'/submit?username=' + ${username}">Submit new post</a>
+</div>
+<div class="information-link">
+    <a th:href="'/register'">Register new user</a>
+</div>
+<div class="header">
+    <h1>Trending posts</h1>
+</div>
+<div class="content">
+    <table>
+        <thead>
+        <tr>
+            <th>votes</th>
+            <th></th>
+            <th></th>
+            <th>title</th>
+            <th>created on</th>
+            <th>created by</th>
+        </tr>
+        </thead>
+        <tbody th:each="post: ${posts}" th:object="${post}">
+        <tr>
+            <td th:text="*{votes}">/td>
+            <td>
+                <a th:href="@{'/{id}/?page=' + ${currentPage} + '&username='+${username} +'&action=upvote' (id=${post.id})}">+</a>
+            </td>
+            <td>
+                <a th:href="@{'/{id}/?page=' + ${currentPage} + '&username='+${username} +'&action=downvote' (id=${post.id})}">-</a>
+            </td>
+            <td>
+                <a th:href="*{contentLink}" th:text="*{title}"></a>
+            </td>
+            <td th:text="${#dates.format(post.creationDate, 'dd-MMM-yyyy HH:mm')}"></td>
+            <td th:if="${post.owner != null}" th:text="${post.owner.username}"></td>
+            <td th:unless="${post.owner != null}">unknown</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="button-container">
+    <form th:if="${currentPage} > 0" action="/" method="get">
+        <input type="hidden" name="page" th:attr="value=${currentPage - 1}">
+        <input type="hidden" name="username" th:value="${username}">
+        <!--        for future reference: before when there was no default value set in controller for page, you used approach below  -->
+        <!--        <input type="hidden" name="page" th:attr="value=${currentPage != null ? currentPage - 1 : 0}">   -->
+        <button type="submit">previous</button>
+    </form>
+    <form th:if="${currentPage} < ${posts.getTotalPages() - 1}" action="/" method="get">
+        <input type="hidden" name="page" th:attr="value=${currentPage + 1}">
+        <input type="hidden" name="username" th:value="${username}">
+        <button type="submit">next</button>
+    </form>
+</div>
+
+</body>
+</html>
